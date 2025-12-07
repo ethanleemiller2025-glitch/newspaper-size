@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newspaper Ad Size Converter</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;600&display=swap');
+    /* Retro newspaper look: sepia paper, serif headings, column boxes */
+    body { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; margin: 2em; background: #f2ead8; color: #2b2b2b; }
+    .container { max-width: 760px; margin: auto; background: linear-gradient(180deg,#fbf6ea 0%, #f4ead4 100%); padding: 1.6em 1.8em; border-radius: 4px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); }
+    h2 { margin-top:0; font-weight:700; letter-spacing:1px; color:#1e1e1e; font-family:'Libre Baskerville', serif; font-size:1.4rem; }
+    label { display:block; margin-bottom:0.35em; color: #3a3a3a; font-family:'Source Sans 3', sans-serif; }
+    input[type="number"] { border:1px solid rgba(0,0,0,0.12); border-radius:4px; padding: 0.45em 0.7em; margin-bottom: 0.7em; background: #fff; color: #111; outline: none; font-size:1rem; }
+    input[type="number"]:focus { box-shadow: 0 6px 12px rgba(0,0,0,0.04); }
+    #settingsIcon { background: #efe1c9; padding: 6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.06); }
+    #settingsIcon:hover { transform: rotate(6deg); transition: transform .18s ease; }
+    button { background: #1e1e1e; color:#f6ecd6; border:none; padding:0.5em 0.9em; border-radius:6px; font-weight:600; cursor:pointer; font-family:'Source Sans 3', sans-serif; }
+    button:hover { opacity:0.96; }
+    .preview { margin-top: 1.2em; padding: 0.8em; background: transparent; border-radius: 4px; text-align: left; }
+    .small-note { font-size:0.9em; color: #6b5b40; margin-top:6px; font-family:'Source Sans 3', sans-serif; }
+    .cards { display:flex; gap:12px; margin-top:12px; }
+    .card { flex:1; padding:12px; border-radius:4px; color:#111; min-width:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; border-top:3px solid rgba(0,0,0,0.08); background: #fffdf5; font-family:'Libre Baskerville', serif; }
+    .card .label { font-size:0.78em; color: #6b5b40; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; }
+    .card .dim { font-weight:700; font-size:1.02em; color:#111; }
+    .card .note { font-size:0.82em; color:#5a4b3a; margin-top:8px; }
+    #settingsPanel { background: transparent; padding:8px; border-radius:6px; }
+    @media (max-width:560px) { .cards { flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Newspaper Advertisement Size Converter</h2>
+    <form id="adForm">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <label for="cc" style="font-size:1.3em;font-weight:bold;">Ad Size (in column centimeters, cc):</label>
+          <span id="settingsIcon" style="cursor:pointer;font-size:1.5em;margin-left:1em;" title="Settings">&#9881;</span>
+        </div>
+        <input type="number" id="cc" name="cc" min="1" required style="font-size:2em;width:100%;padding:0.5em 0.8em;">
+        <div id="settingsPanel" style="display:none;margin-top:1em;">
+          <label for="colWidth">Column Width (cm):</label>
+          <input type="number" id="colWidth" name="colWidth" min="1" step="0.1" value="3.5" required>
+            <label for="pageWidth">Newspaper Page Width (cm):</label>
+            <input type="number" id="pageWidth" name="pageWidth" min="1" step="0.1" value="32" required>
+            <label for="pageHeight">Newspaper Page Height (cm):</label>
+            <input type="number" id="pageHeight" name="pageHeight" min="1" step="0.1" value="52" required>
+        </div>
+        <button type="submit">Show Dimensions</button>
+    </form>
+    <div class="preview" id="preview" style="display:none;">
+      <h3 style="margin:0;color:#fff;">Ad Size Options</h3>
+      <div class="small-note">Values shown as width × height (cm)</div>
+      <div class="cards">
+        <div class="card" id="sizeA">
+          <div class="label">Option 1</div>
+          <div class="dim">--</div>
+          <svg class="glow" viewBox="0 0 100 100" preserveAspectRatio="none"><defs><linearGradient id="g1"><stop offset="0%" stop-color="#fff" stop-opacity="1"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect x="0" y="0" width="100" height="100" fill="url(#g1)"/></svg>
+        </div>
+        <div class="card" id="sizeB">
+          <div class="label">Option 2</div>
+          <div class="dim">--</div>
+          <svg class="glow" viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="0" y="0" width="100" height="100" fill="#fff"/></svg>
+        </div>
+        <div class="card" id="sizeC">
+          <div class="label">Option 3</div>
+          <div class="dim">--</div>
+          <svg class="glow" viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="0" y="0" width="100" height="100" fill="#fff"/></svg>
+        </div>
+      </div>
+      <div id="noFit" class="small-note" style="display:none;color:#b21;">No available layout fits the page. Try changing settings.</div>
+    </div>
+  </div>
+  <script>
+        document.getElementById('settingsIcon').onclick = function() {
+          var panel = document.getElementById('settingsPanel');
+          panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+        };
+    document.getElementById('adForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const cc = parseFloat(document.getElementById('cc').value);
+      const colWidth = parseFloat(document.getElementById('colWidth').value);
+      // Option A (tall-ish) -> 3 columns
+      const aCols = 3;
+      const aH = cc / aCols;
+      const aW = aCols * colWidth;
+      // Option B (wide-ish) -> 6 columns
+      const bCols = 6;
+      const bH = cc / bCols;
+      const bW = bCols * colWidth;
+      // Option C (square-like): choose columns so width ≈ height.
+      // Solve for a: a * colWidth ≈ cc / a  => a^2 * colWidth ≈ cc => a ≈ sqrt(cc / colWidth)
+      const cCols = Math.max(1, Math.round(Math.sqrt(cc / colWidth)));
+      const cH = cc / cCols;
+      const cW = cCols * colWidth;
+
+      // Read page dimensions (if provided in settings)
+      const pageWidthEl = document.getElementById('pageWidth');
+      const pageHeightEl = document.getElementById('pageHeight');
+      const pw = pageWidthEl ? parseFloat(pageWidthEl.value) : NaN;
+      const ph = pageHeightEl ? parseFloat(pageHeightEl.value) : NaN;
+      const constrainToPage = Number.isFinite(pw) && pw > 0 && Number.isFinite(ph) && ph > 0;
+
+      const setCard = (id, w, h) => {
+        const el = document.getElementById(id);
+        const fits = !constrainToPage || (w <= pw + 1e-6 && h <= ph + 1e-6);
+        if (fits) {
+          el.style.display = '';
+          el.querySelector('.dim').textContent = `${w.toFixed(2)} cm × ${h.toFixed(2)} cm`;
+          el.classList.add('anim');
+          setTimeout(() => el.classList.remove('anim'), 600);
+        } else {
+          el.style.display = 'none';
+        }
+        return fits;
+      };
+
+      const fitA = setCard('sizeA', aW, aH);
+      const fitB = setCard('sizeB', bW, bH);
+      const fitC = setCard('sizeC', cW, cH);
+
+      const anyFit = fitA || fitB || fitC;
+      document.getElementById('noFit').style.display = anyFit ? 'none' : 'block';
+      document.getElementById('preview').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
