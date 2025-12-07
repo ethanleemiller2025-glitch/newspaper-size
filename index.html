@@ -7,11 +7,25 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;600&display=swap');
     /* Retro newspaper look: sepia paper, serif headings, column boxes */
-    body { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; margin: 2em; background: #f2ead8; color: #2b2b2b; }
+    body { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; margin: 2em; color: #2b2b2b;
+      /* base paper gradient */
+      background-color: #f2ead8;
+      background-image:
+        linear-gradient(180deg,#fbf6ea 0%, #f4ead4 100%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'><filter id='n'><feTurbulence baseFrequency='0.12' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='420' height='420' fill='%23ffffff' filter='url(%23n)' opacity='0.22'/></svg>");
+      background-blend-mode: multiply, normal;
+      /* Make the SVG texture cover the whole page without visible tiles */
+      background-repeat: no-repeat, no-repeat;
+      background-position: center center, center center;
+      background-size: cover, cover;
+      background-attachment: fixed, fixed;
+    }
     .container { max-width: 760px; margin: auto; background: linear-gradient(180deg,#fbf6ea 0%, #f4ead4 100%); padding: 1.6em 1.8em; border-radius: 4px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); }
-    h2 { margin-top:0; font-weight:700; letter-spacing:1px; color:#1e1e1e; font-family:'Libre Baskerville', serif; font-size:1.4rem; }
+    h2 { margin-top:0; font-weight:700; letter-spacing:1px; color:#1e1e1e; font-family:'Libre Baskerville', serif; font-size:1.4rem; text-align:center; }
     label { display:block; margin-bottom:0.35em; color: #3a3a3a; font-family:'Source Sans 3', sans-serif; }
     input[type="number"] { border:1px solid rgba(0,0,0,0.12); border-radius:4px; padding: 0.45em 0.7em; margin-bottom: 0.7em; background: #fff; color: #111; outline: none; font-size:1rem; }
+    /* Ad size input specific */
+    #cc.ad-input { font-size:1.6rem; padding:0.6em 0.8em; height:48px; box-sizing:border-box; width:80%; max-width:520px; display:inline-block; }
     input[type="number"]:focus { box-shadow: 0 6px 12px rgba(0,0,0,0.04); }
     #settingsIcon { background: #efe1c9; padding: 6px 10px; border-radius:4px; border:1px solid rgba(0,0,0,0.06); }
     #settingsIcon:hover { transform: rotate(6deg); transition: transform .18s ease; }
@@ -26,17 +40,33 @@
     .card .note { font-size:0.82em; color:#5a4b3a; margin-top:8px; }
     #settingsPanel { background: transparent; padding:8px; border-radius:6px; }
     @media (max-width:560px) { .cards { flex-direction:column; } }
+    /* Subtle interactive animations */
+    .card { transition: transform .28s ease, box-shadow .28s ease, opacity .25s ease; cursor:default; }
+    .card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 14px 30px rgba(0,0,0,0.08); }
+    .card .dim { transition: color .18s ease; }
+    .card:hover .dim { color:#000; }
+    .card.anim { animation: pop .48s cubic-bezier(.2,.9,.2,1); }
+    @keyframes pop { 0% { transform: translateY(8px); opacity:0.85 } 60% { transform: translateY(-4px); } 100% { transform: translateY(0); opacity:1 } }
+    input.ad-input:focus { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.06); transition: box-shadow .18s ease, transform .12s ease; }
+    button { transition: transform .12s ease, box-shadow .12s ease; }
+    button:active { transform: translateY(2px) scale(.995); box-shadow:none; }
+    /* subtle shimmer on reveal */
+    .card::after { content:''; position:absolute; left:-40%; top:0; width:60%; height:100%; transform:skewX(-18deg) translateX(-100%); background: linear-gradient(90deg, rgba(255,255,255,0.0), rgba(255,255,255,0.25), rgba(255,255,255,0.0)); opacity:0; pointer-events:none; }
+    .card.shimmer::after { animation: slideShine 1s ease forwards; }
+    @keyframes slideShine { from { transform:skewX(-18deg) translateX(-100%); opacity:0 } 50% { opacity:0.6 } to { transform:skewX(-18deg) translateX(220%); opacity:0 } }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Newspaper Advertisement Size Converter</h2>
     <form id="adForm">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <label for="cc" style="font-size:1.3em;font-weight:bold;">Ad Size (in column centimeters, cc):</label>
-          <span id="settingsIcon" style="cursor:pointer;font-size:1.5em;margin-left:1em;" title="Settings">&#9881;</span>
+        <div style="position:relative;padding-right:40px;">
+          <label for="cc" style="font-size:1.3em;font-weight:bold;display:block;text-align:center;width:100%;">Ad Size (in column centimeters, cc):</label>
+          <span id="settingsIcon" style="cursor:pointer;font-size:1.5em;position:absolute;right:0;top:0;padding:6px;" title="Settings">&#9881;</span>
         </div>
-        <input type="number" id="cc" name="cc" min="1" required style="font-size:2em;width:100%;padding:0.5em 0.8em;">
+        <div style="text-align:center;">
+          <input type="number" id="cc" name="cc" class="ad-input" min="1" required placeholder="e.g. 60">
+        </div>
         <div id="settingsPanel" style="display:none;margin-top:1em;">
           <label for="colWidth">Column Width (cm):</label>
           <input type="number" id="colWidth" name="colWidth" min="1" step="0.1" value="3.5" required>
@@ -45,7 +75,7 @@
             <label for="pageHeight">Newspaper Page Height (cm):</label>
             <input type="number" id="pageHeight" name="pageHeight" min="1" step="0.1" value="52" required>
         </div>
-        <button type="submit">Show Dimensions</button>
+        <button type="submit" style="display:block;margin:14px auto 0;">Show Dimensions</button>
     </form>
     <div class="preview" id="preview" style="display:none;">
       <h3 style="margin:0;color:#fff;">Ad Size Options</h3>
@@ -120,7 +150,22 @@
 
       const anyFit = fitA || fitB || fitC;
       document.getElementById('noFit').style.display = anyFit ? 'none' : 'block';
+      // trigger shimmer on visible cards
+      ['sizeA','sizeB','sizeC'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('shimmer');
+        // force reflow then add
+        void el.offsetWidth;
+        if (el.style.display !== 'none') el.classList.add('shimmer');
+      });
       document.getElementById('preview').style.display = 'block';
+    });
+
+    // touch interactions: add a brief anim class on touch for mobile feedback
+    ['sizeA','sizeB','sizeC'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('touchstart', () => el.classList.add('anim'));
+      el.addEventListener('touchend', () => setTimeout(() => el.classList.remove('anim'), 150));
     });
   </script>
 </body>
