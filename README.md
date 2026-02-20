@@ -1,6 +1,6 @@
 # Newspaper Advertisement Size Converter
 
-This is a static website to convert newspaper advertisement sizes (in column centimeters, cc) into measurable units (centimeters and inches) and preview the ad size visually.
+This is website to convert newspaper advertisement sizes (in column centimeters, cc) into measurable units (centimeters and inches) and preview the ad size visually.
 
 ## Features
 - Enter ad size in column centimeters (cc)
@@ -20,4 +20,3 @@ This is a static website to convert newspaper advertisement sizes (in column cen
 - 50cc, 2 columns, 3.5cm column width, aspect ratio 2:1
 - Result: 7.00cm × 25.00cm (2.76in × 9.84in)
 
-## No backend required. Pure HTML, CSS, and JavaScript.
